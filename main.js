@@ -1,30 +1,38 @@
 const schedule = require('node-schedule');
 const nodemailer = require('nodemailer');
 const cron = require('cron');
+require('dotenv').config();
 
-var j = schedule.scheduleJob('* * * * *', function () {
+var arr = process.env.TO_EMAIL.split(",");
+
+var j = schedule.scheduleJob('30 21 * * *', function () {
     let transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: '****',
-            pass: '****'
+            user: process.env.USER_EMAIL,
+            pass: process.env.USER_PASS
         }
     });
-    let mailOptions = {
-        from: '"Tejaswini" <tejach956@gmail.com>',
-        to: "2016csb1036@iitrpr.ac.in,knyaswanth@iitrpr.ac.in,2016csb1035@iitrpr.ac.in,2016eeb1092@iitrpr.ac.in",
-        subject: "Reminder",
-        text: "Time to start for work",
-        html: "<b>Time to start for work</b>"
+
+    var i;
+    for (i = 0; i < arr.length; i++) {
+        let mailOptions = {
+            from: '"Tejaswini" <tejach956@gmail.com>',
+            to: arr[i],
+            subject: "Reminder",
+            text: "Time to start for work",
+            html: "<b>Time to start for work</b>"
+        }
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log('Email sent: ' + info.response);
+                res.status(200).json({
+                    message: 'An email has been sent'
+                });
+            }
+        });
     }
-    transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-            console.log(error);
-        } else {
-            console.log('Email sent: ' + info.response);
-            res.status(200).json({
-                message: 'An email has been sent'
-            });
-        }
-    });
+
 });
